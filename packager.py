@@ -1,4 +1,4 @@
-from os import path, listdir, chdir, rename, mkdir
+from os import path, listdir, chdir, rename, mkdir, system
 from datetime import date
 import re
 
@@ -97,13 +97,19 @@ def update_module(project, name):
     Ensures the Python modules are inside the correct folder.
     """
     if not path.exists(name):
+        print('Creating {} module.'.format(name))
         mkdir(name)
 
     main = name + '.py'
     if path.exists(main):
-        rename(name, path.join(name, '__init__.py'))
+        print('Renaming module file {} to __init__.py'.format(main))
+        rename(main, path.join(name, '__init__.py'))
 
     for python_file in [f for f in listdir('.') if f.endswith('.py')]:
+        if python_file == 'setup.py':
+            continue
+
+        print('Moving sub-module {}.'.format(python_file))
         rename(python_file, path.join(name, python_file))
 
 
@@ -128,3 +134,10 @@ if __name__ == '__main__':
     project_name = raw_input('Project name: ')
     project = path.join('D:/', 'projects', project_name)
     package(project)
+
+    print('Running sdist on setup.')
+    system('python setup.py sdist')
+
+    if raw_input('Do you want to upload this module to PyPi? (y/N) ') == 'y':
+        system('python setup.py register')
+        system('python setup.py sdist upload')
