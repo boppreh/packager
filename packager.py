@@ -61,17 +61,17 @@ def create_element(expected_name, default_content):
     extension.
     """
     if path.exists(expected_name):
-        print('{} already exists, skipping.'.format(expected_name))
+        print('"{}" already exists, skipping.'.format(expected_name))
         return
 
     name = path.splitext(expected_name)[0]
     similar_names = [f for f in listdir('.') if f.startswith(name + '.') and path.isfile(f)]
 
     if len(similar_names) == 1:
-        print('Renaming {} to {}.'.format(similar_names[0], expected_name))
+        print('Renaming "{}" to "{}".'.format(similar_names[0], expected_name))
         rename(similar_names[0], expected_name)
     else:
-        print('Creating {} with default values.'.format(expected_name))
+        print('Creating "{}" with default values.'.format(expected_name))
         with open(expected_name, 'w') as f:
             f.write(default_content)
 
@@ -102,14 +102,14 @@ def update_module(project, name):
 
     main = name + '.py'
     if path.exists(main):
-        print('Renaming module file {} to __init__.py'.format(main))
+        print('Renaming module file "{}" to "__init__.py".'.format(main))
         rename(main, path.join(name, '__init__.py'))
 
     for python_file in [f for f in listdir('.') if f.endswith('.py')]:
         if python_file == 'setup.py':
             continue
 
-        print('Moving sub-module {}.'.format(python_file))
+        print('Moving sub-module "{}".'.format(python_file))
         rename(python_file, path.join(name, python_file))
 
 
