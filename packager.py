@@ -39,46 +39,70 @@ DEFAULT_CHANGES = """0.1.0 ({})
 DEFAULT_MANIFEST = """include *.txt
 recursive-include docs *.txt"""
 
+DEFAULT_SETUP = """from distutils.core import setup
+
+setup(
+    name='{title}',
+    version='0.1.0',
+    author='{author}',
+    author_email='{email}',
+    packages=['{project}'],
+    url='http://pypi.python.org/pypi/{title}/',
+    license='LICENSE.txt',
+    description='{title}',
+    long_description=open('README.rst').read(),
+)"""
+
 
 def create_element(expected_name, default_content):
-	"""
-	Given the name of a file that needs to exist and its default contents,
-	ensures the file exists, is created or some similar file is renamed.
+    """
+    Given the name of a file that needs to exist and its default contents,
+    ensures the file exists, by creating it or renaming a file from a different
+    extension.
+    """
+    if path.exists(expected_name):
+        print('{} already exists, skipping.'.format(expected_name))
+        return
 
-	Similar files are choosen based purely on prefix naming.
-	"""
-	if path.exists(expected_name):
-		return
+    name = path.splitext(expected_name)[0]
+    similar_names = [f for f in listdir('.') if f.startswith(name + '.') and path.isfile(f)]
 
-	name = path.splitext(expected_name)[0]
-	similar_names = [f for f in listdir('.') if f.startswith(name + '.') and path.isfile(f)]
-
-	if len(similar_names) == 1:
-		rename(similar_names[0], expected_name)
-	else:
-		with open(expected_name, 'w') as f:
-			f.write(default_content)
+    if len(similar_names) == 1:
+        print('Renaming {} to {}.'.format(similar_names[0], expected_name))
+        rename(similar_names[0], expected_name)
+    else:
+        print('Creating {} with default values.'.format(expected_name))
+        with open(expected_name, 'w') as f:
+            f.write(default_content)
 
 def package(project):
-	"""
-	Packages a given project.
-	"""
-	if project.endswith('/'):
-		project = project[:-1]
+    """
+    Packages a given project, adding or renaming the required files and moving
+    the folders are necessary.
+    """
+    if project.endswith('/'):
+        project = project[:-1]
 
-	project_name = path.basename(project)
-	words = re.findall('([A-Z]?[a-z]+)', project_name)
-	title = ' '.join(words).title().replace(' ', '')
+    project_name = path.basename(project)
+    words = re.findall('([A-Z]?[a-z]+)', project_name)
+    title = ' '.join(words).title().replace(' ', '')
 
-	chdir(project)
+    chdir(project)
 
-	create_element('CHANGES.txt', DEFAULT_CHANGES)
-	create_element('LICENSE.txt', DEFAULT_LICENSE.format(date.today().year,
+    create_element('CHANGES.txt', DEFAULT_CHANGES)
+    create_element('LICENSE.txt', DEFAULT_LICENSE.format(date.today().year,
                 AUTHOR_NAME, AUTHOR_EMAIL))
-	create_element('MANIFEST.in', DEFAULT_MANIFEST)
-	create_element('README.rst', title + '\n' + len(title) * '-')
-	
+    create_element('MANIFEST.in', DEFAULT_MANIFEST)
+
+    create_element('README.rst', title + '\n' + len(title) * '-')
+
+    setup = DEFAULT_SETUP.format(title=title,
+                                 author=AUTHOR_NAME,
+                                 email=AUTHOR_EMAIL,
+                                 project=project_name)
+    create_element('setup.py', setup)
+    
 if __name__ == '__main__':
-	project_name = raw_input('Project name: ')
-	project = path.join('D:/', 'projects', project_name)
-	package(project)
+    project_name = raw_input('Project name: ')
+    project = path.join('D:/', 'projects', project_name)
+    package(project)
