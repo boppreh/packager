@@ -1,11 +1,15 @@
 from os import path, listdir, chdir, rename
 from datetime import date
+import re
+
+AUTHOR_NAME = 'Lucas Boppre Niehues'
+AUTHOR_EMAIL = 'lucasboppre@gmail.com'
 
 DEFAULT_LICENSE = """/*
 
   Licensed under the MIT License
 
-  Copyright (c) {} Lucas Boppre Niehues (lucasboppre@gmail.com)
+  Copyright (c) {} {} ({})
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +29,7 @@ DEFAULT_LICENSE = """/*
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 
-*/""".format(date.today().year)
+*/"""
 
 DEFAULT_CHANGES = """0.1.0 ({})
 ++++++++++++++++++
@@ -34,8 +38,6 @@ DEFAULT_CHANGES = """0.1.0 ({})
 
 DEFAULT_MANIFEST = """include *.txt
 recursive-include docs *.txt"""
-
-DEFAULT_README = ''
 
 
 def create_element(expected_name, default_content):
@@ -49,22 +51,34 @@ def create_element(expected_name, default_content):
 		return
 
 	name = path.splitext(expected_name)[0]
-	similar_names = [f for f in listdir('.') if f.startswith(name) and path.isfile(f)]
+	similar_names = [f for f in listdir('.') if f.startswith(name + '.') and path.isfile(f)]
 
 	if len(similar_names) == 1:
-		os.rename(similar_names[0], expected_name)
+		rename(similar_names[0], expected_name)
 	else:
-		with open(changes, 'w') as f:
+		with open(expected_name, 'w') as f:
 			f.write(default_content)
 
-def package(path):
+def package(project):
 	"""
 	Packages a given project.
 	"""
-	chdir(path)
+	if project.endswith('/'):
+		project = project[:-1]
+
+	project_name = path.basename(project)
+	words = re.findall('([A-Z]?[a-z]+)', project_name)
+	title = ' '.join(words).title().replace(' ', '')
+
+	chdir(project)
 
 	create_element('CHANGES.txt', DEFAULT_CHANGES)
-	create_element('LICENSE.txt', DEFAULT_LICENSE)
+	create_element('LICENSE.txt', DEFAULT_LICENSE.format(date.today().year,
+                AUTHOR_NAME, AUTHOR_EMAIL))
 	create_element('MANIFEST.in', DEFAULT_MANIFEST)
-	create_element('README.rst', DEFAULT_README)
+	create_element('README.rst', title + '\n' + len(title) * '-')
 	
+if __name__ == '__main__':
+	project_name = raw_input('Project name: ')
+	project = path.join('D:/', 'projects', project_name)
+	package(project)
