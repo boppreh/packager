@@ -37,7 +37,14 @@ recursive-include docs *.txt"""
 
 DEFAULT_README = ''
 
+
 def create_element(expected_name, default_content):
+	"""
+	Given the name of a file that needs to exist and its default contents,
+	ensures the file exists, is created or some similar file is renamed.
+
+	Similar files are choosen based purely on prefix naming.
+	"""
 	if path.exists(expected_name):
 		return
 
@@ -50,7 +57,10 @@ def create_element(expected_name, default_content):
 		with open(changes, 'w') as f:
 			f.write(default_content)
 
-def analyze_dir(path):
+def package(path):
+	"""
+	Packages a given project.
+	"""
 	chdir(path)
 
 	create_element('CHANGES.txt', DEFAULT_CHANGES)
