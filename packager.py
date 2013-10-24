@@ -1,4 +1,4 @@
-from os import path, listdir, chdir, rename
+from os import path, listdir, chdir, rename, mkdir
 from datetime import date
 import re
 
@@ -75,6 +75,38 @@ def create_element(expected_name, default_content):
         with open(expected_name, 'w') as f:
             f.write(default_content)
 
+def create_all_elements(project_name, title):
+    """
+    Ensures all the required files for a package are present.
+    """
+    create_element('CHANGES.txt', DEFAULT_CHANGES)
+    create_element('LICENSE.txt', DEFAULT_LICENSE.format(date.today().year,
+                AUTHOR_NAME, AUTHOR_EMAIL))
+    create_element('MANIFEST.in', DEFAULT_MANIFEST)
+
+    create_element('README.rst', title + '\n' + len(title) * '-')
+
+    setup = DEFAULT_SETUP.format(title=title,
+                                 author=AUTHOR_NAME,
+                                 email=AUTHOR_EMAIL,
+                                 project=project_name)
+    create_element('setup.py', setup)
+
+def update_module(project, name):
+    """
+    Ensures the Python modules are inside the correct folder.
+    """
+    if not path.exists(name):
+        mkdir(name)
+
+    main = name + '.py'
+    if path.exists(main):
+        rename(name, path.join(name, '__init__.py'))
+
+    for python_file in [f for f in listdir('.') if f.endswith('.py')]:
+        rename(python_file, path.join(name, python_file))
+
+
 def package(project):
     """
     Packages a given project, adding or renaming the required files and moving
@@ -89,18 +121,8 @@ def package(project):
 
     chdir(project)
 
-    create_element('CHANGES.txt', DEFAULT_CHANGES)
-    create_element('LICENSE.txt', DEFAULT_LICENSE.format(date.today().year,
-                AUTHOR_NAME, AUTHOR_EMAIL))
-    create_element('MANIFEST.in', DEFAULT_MANIFEST)
-
-    create_element('README.rst', title + '\n' + len(title) * '-')
-
-    setup = DEFAULT_SETUP.format(title=title,
-                                 author=AUTHOR_NAME,
-                                 email=AUTHOR_EMAIL,
-                                 project=project_name)
-    create_element('setup.py', setup)
+    create_all_elements(project_name, title)
+    update_module(project, project_name)
     
 if __name__ == '__main__':
     project_name = raw_input('Project name: ')
