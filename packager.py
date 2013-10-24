@@ -104,6 +104,10 @@ def update_module(project, name):
     if path.exists(main):
         print('Renaming module file "{}" to "__init__.py".'.format(main))
         rename(main, path.join(name, '__init__.py'))
+    else:
+        print('Creating empty file "__init__.py".')
+        with open(path.join(name, '__init__.py'), 'w') as f:
+            f.write('')
 
     for python_file in [f for f in listdir('.') if f.endswith('.py')]:
         if python_file == 'setup.py':
