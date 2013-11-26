@@ -127,7 +127,7 @@ def package(project):
 
     project_name = path.basename(project)
     words = re.findall('([A-Z]?[a-z]+)', project_name)
-    title = ' '.join(words).title().replace(' ', '')
+    title = ''.join(words)
 
     chdir(project)
 
