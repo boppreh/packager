@@ -36,7 +36,7 @@ DEFAULT_CHANGES = """0.1.0 ({})
 
 - Initial release.""".format(date.today().isoformat())
 
-DEFAULT_MANIFEST = """include *.txt
+DEFAULT_MANIFEST = """include *.txt *.md
 recursive-include docs *.txt"""
 
 DEFAULT_SETUP = """from distutils.core import setup
@@ -50,7 +50,7 @@ setup(
     url='http://pypi.python.org/pypi/{title}/',
     license='LICENSE.txt',
     description='{title}',
-    long_description=open('README.rst').read(),
+    long_description=open('README.md').read(),
 )"""
 
 
@@ -84,7 +84,7 @@ def create_all_elements(project_name, title):
                 AUTHOR_NAME, AUTHOR_EMAIL))
     create_element('MANIFEST.in', DEFAULT_MANIFEST)
 
-    create_element('README.rst', title + '\n' + len(title) * '-')
+    create_element('README.md', title + '\n' + len(title) * '-')
 
     setup = DEFAULT_SETUP.format(title=title,
                                  author=AUTHOR_NAME,
