@@ -135,13 +135,18 @@ def package(project):
     update_module(project, project_name)
     
 if __name__ == '__main__':
-    project_name = raw_input('Project name: ')
-    project = path.join('D:/', 'projects', project_name)
+    try:
+        input = raw_input
+    except:
+        pass
+
+    project_name = input('Project name: ')
+    project = path.join('E:/', 'projects', project_name)
     package(project)
 
     print('Running sdist on setup.')
     system('python setup.py sdist')
 
-    if raw_input('Do you want to upload this module to PyPi? (y/N) ') == 'y':
+    if input('Do you want to upload this module to PyPi? (y/N) ') == 'y':
         system('python setup.py register')
         system('python setup.py sdist upload')
